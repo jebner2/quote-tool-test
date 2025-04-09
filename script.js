@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addItemBtn = document.getElementById('addItem');
     const generateQuoteBtn = document.getElementById('generateQuote');
     const quoteOutput = document.getElementById('quoteOutput');
+    const exportPDFBtn = document.getElementById('exportPDF');
 
     populatePartNumbers(partNumberTemplate);
 
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newItem = itemsContainer.querySelector('.item').cloneNode(true);
         newItem.querySelector('.removeItem').style.display = 'block';
         newItem.querySelector('.partNumber').value = '';
+        newItem.querySelector('.quantity').value = '1';
         newItem.querySelector('.description').value = '';
         newItem.querySelector('.listPrice').value = '';
         newItem.querySelector('.discount').value = '10';
@@ -38,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function attachItemEventListeners(item) {
         const partNumberSelect = item.querySelector('.partNumber');
+        const quantityInput = item.querySelector('.quantity');
         const descriptionTextarea = item.querySelector('.description');
         const listPriceInput = item.querySelector('.listPrice');
         const discountInput = item.querySelector('.discount');
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedPart && products[selectedPart]) {
                 descriptionTextarea.value = products[selectedPart].description;
                 listPriceInput.value = products[selectedPart].listPrice.toFixed(2);
-                calculateQuotedPrice(listPriceInput, discountInput, quotedPriceInput);
+                calculateQuotedPrice(listPriceInput, quantityInput, discountInput, quotedPriceInput);
             } else {
                 descriptionTextarea.value = '';
                 listPriceInput.value = '';
@@ -57,8 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        quantityInput.addEventListener('input', () => {
+            calculateQuotedPrice(listPriceInput, quantityInput, discountInput, quotedPriceInput);
+        });
+
         discountInput.addEventListener('input', () => {
-            calculateQuotedPrice(listPriceInput, discountInput, quotedPriceInput);
+            calculateQuotedPrice(listPriceInput, quantityInput, discountInput, quotedPriceInput);
         });
 
         removeBtn.addEventListener('click', () => {
@@ -68,10 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function calculateQuotedPrice(listPriceInput, discountInput, quotedPriceInput) {
+    function calculateQuotedPrice(listPriceInput, quantityInput, discountInput, quotedPriceInput) {
         const listPrice = parseFloat(listPriceInput.value) || 0;
+        const quantity = parseInt(quantityInput.value) || 1;
         const discount = parseFloat(discountInput.value) || 0;
-        const quotedPrice = listPrice * (1 - discount / 100);
+        const totalListPrice = listPrice * quantity;
+        const quotedPrice = totalListPrice * (1 - discount / 100);
         quotedPriceInput.value = quotedPrice.toFixed(2);
     }
 
@@ -91,6 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date();
         const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // MM/DD/YYYY format
 
+        // Calculate the maximum description length to adjust column width
+        let maxDescriptionLength = 0;
+        items.forEach(item => {
+            const description = item.querySelector('.description').value;
+            if (description.length > maxDescriptionLength) {
+                maxDescriptionLength = description.length;
+            }
+        });
+        // Estimate width based on character count (approximate 5px per character)
+        const descriptionColumnWidth = Math.max(200, maxDescriptionLength * 5); // Minimum 200px
+
         let hasValidItem = false;
         let totalQuotedPrice = 0;
         let quoteTable = `
@@ -106,15 +126,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <table>
                 <tr>
                     <th>Part Number</th>
-                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th class="description-column" style="width: ${descriptionColumnWidth}px;">Description</th>
                     <th>List Price</th>
-                    <th>Discount</th>
+                    <th>Discount (%)</th>
+                    <th>$ Discount</th>
                     <th>Quoted Price</th>
                 </tr>
         `;
 
         items.forEach(item => {
             const partNumber = item.querySelector('.partNumber').value;
+            const quantity = item.querySelector('.quantity').value;
             const description = item.querySelector('.description').value;
             const listPrice = item.querySelector('.listPrice').value;
             const discount = item.querySelector('.discount').value;
@@ -122,13 +145,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (partNumber && listPrice && quotedPrice) {
                 hasValidItem = true;
+                const totalListPrice = parseFloat(listPrice) * parseInt(quantity);
+                const dollarDiscount = totalListPrice - parseFloat(quotedPrice);
                 totalQuotedPrice += parseFloat(quotedPrice);
                 quoteTable += `
                     <tr>
                         <td>${partNumber}</td>
-                        <td>${description}</td>
+                        <td>${quantity}</td>
+                        <td class="description-column" style="width: ${descriptionColumnWidth}px;">${description}</td>
                         <td>$${parseFloat(listPrice).toFixed(2)}</td>
                         <td>${discount}%</td>
+                        <td>$${dollarDiscount.toFixed(2)}</td>
                         <td>$${parseFloat(quotedPrice).toFixed(2)}</td>
                     </tr>
                 `;
@@ -142,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         quoteTable += `
                 <tr>
-                    <td colspan="4" style="text-align: right;"><strong>Total Quoted Price:</strong></td>
+                    <td colspan="6" style="text-align: right;"><strong>Total Quoted Price:</strong></td>
                     <td><strong>$${totalQuotedPrice.toFixed(2)}</strong></td>
                 </tr>
             </table>
@@ -153,7 +180,92 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        quoteOutput.innerHTML = quoteTable;
+        quoteOutput.innerHTML = `
+            <button id="exportPDF">Export to PDF</button>
+            ${quoteTable}
+        `;
         quoteOutput.style.display = 'block';
+
+        // Re-attach the event listener for the export button
+        const newExportPDFBtn = document.getElementById('exportPDF');
+        newExportPDFBtn.addEventListener('click', () => {
+            exportToPDF(customerName, customerPhone, formattedDate, items, totalQuotedPrice);
+        });
     });
+
+    function exportToPDF(customerName, customerPhone, formattedDate, items, totalQuotedPrice) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add logo (requires converting the image to base64 or using a URL; for simplicity, we'll skip the logo in PDF for now)
+        // If you want to include the logo, you would need to convert it to base64 and use doc.addImage()
+
+        // Add header
+        doc.setFontSize(16);
+        doc.text(`Quote for ${customerName}`, 10, 20);
+        doc.setFontSize(12);
+        doc.text(`Date: ${formattedDate}`, 160, 20);
+
+        // Add customer info
+        let yPos = 30;
+        doc.setFontSize(12);
+        doc.text(`Customer Name: ${customerName}`, 10, yPos);
+        if (customerPhone) {
+            yPos += 10;
+            doc.text(`Phone: ${customerPhone}`, 10, yPos);
+        }
+
+        // Add table header
+        yPos += 20;
+        const tableData = [];
+        items.forEach(item => {
+            const partNumber = item.querySelector('.partNumber').value;
+            const quantity = item.querySelector('.quantity').value;
+            const description = item.querySelector('.description').value;
+            const listPrice = item.querySelector('.listPrice').value;
+            const discount = item.querySelector('.discount').value;
+            const quotedPrice = item.querySelector('.quotedPrice').value;
+
+            if (partNumber && listPrice && quotedPrice) {
+                const totalListPrice = parseFloat(listPrice) * parseInt(quantity);
+                const dollarDiscount = totalListPrice - parseFloat(quotedPrice);
+                tableData.push([
+                    partNumber,
+                    quantity,
+                    description,
+                    `$${parseFloat(listPrice).toFixed(2)}`,
+                    `${discount}%`,
+                    `$${dollarDiscount.toFixed(2)}`,
+                    `$${parseFloat(quotedPrice).toFixed(2)}`
+                ]);
+            }
+        });
+
+        // Add table using autoTable (requires jspdf-autotable plugin for better table rendering)
+        doc.autoTable({
+            startY: yPos,
+            head: [['Part Number', 'Quantity', 'Description', 'List Price', 'Discount (%)', '$ Discount', 'Quoted Price']],
+            body: tableData,
+            styles: { fontSize: 10 },
+            columnStyles: {
+                2: { cellWidth: 60 } // Description column wider
+            }
+        });
+
+        // Add total
+        yPos = doc.lastAutoTable.finalY + 10;
+        doc.text(`Total Quoted Price: $${totalQuotedPrice.toFixed(2)}`, 150, yPos);
+
+        // Add contact info
+        yPos += 10;
+        doc.setFontSize(10);
+        doc.text('Contact: Jordan Ebner, Branch Manager', 10, yPos);
+        yPos += 5;
+        doc.text('Phone: 720-289-4986', 10, yPos);
+        yPos += 5;
+        doc.text('Address: 230 Yuma Street, Denver, CO 80204', 10, yPos);
+
+        // Save the PDF
+        doc.save(`Quote_${customerName}_${formattedDate.replace(/\//g, '-')}.pdf`);
+    }
 });
