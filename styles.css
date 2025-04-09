@@ -46,7 +46,7 @@ input, select, textarea {
 }
 
 textarea {
-    height: 100px;
+    height: 150px; /* Increased height to prevent cutting off descriptions */
     resize: vertical;
 }
 
@@ -103,6 +103,34 @@ button:hover {
     border-radius: 4px;
     background-color: #f9f9f9;
     display: none;
+    position: relative;
+}
+
+.quote-output .quote-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.quote-output .date {
+    font-size: 14px;
+    color: #555;
+}
+
+.quote-output .customer-info {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #333;
+}
+
+.quote-output .contact-info {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
 }
 
 .quote-output table {
