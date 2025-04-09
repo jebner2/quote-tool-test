@@ -4,56 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supportek Quoting Tool</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Include jsPDF library for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .item label {
+            flex: 0 0 100px;
+            font-weight: bold;
+        }
+        .item select, .item input, .item textarea {
+            flex: 1;
+            min-width: 150px;
+            padding: 5px;
+        }
+        .item textarea {
+            resize: vertical;
+            height: 60px;
+        }
+        .removeItem {
+            display: none;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #quoteOutput {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        #quoteOutput table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #quoteOutput th, #quoteOutput td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        #quoteOutput th {
+            background-color: #f2f2f2;
+        }
+        #quoteOutput .description-column {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .customer-info {
+            margin-bottom: 20px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        #exportPDF {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #exportPDF:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <img src="supportek-logo.png" alt="Supportek Logo" class="logo">
-        <h1>Supportek Quoting Tool</h1>
-        <form id="quoteForm">
-            <label for="customerName">Customer Name:</label>
-            <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
+    <h1>Supportek Quoting Tool</h1>
 
-            <label for="customerPhone">Customer Phone Number:</label>
-            <input type="tel" id="customerPhone" name="customerPhone" placeholder="Enter phone number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" title="Phone number should be in the format 123-456-7890">
+    <div>
+        <h2>Customer Information</h2>
+        <label for="customerName">Customer Name:</label>
+        <input type="text" id="customerName" required><br><br>
+        <label for="customerPhone">Customer Phone:</label>
+        <input type="text" id="customerPhone"><br><br>
+        <label for="customerEmail">Customer Email:</label>
+        <input type="email" id="customerEmail"><br><br>
+    </div>
 
-            <h2>Items</h2>
-            <div id="itemsContainer">
-                <div class="item">
-                    <label for="partNumber">Part Number:</label>
-                    <select class="partNumber" name="partNumber" required>
-                        <option value="">Select a Part Number</option>
-                    </select>
+    <div id="itemsContainer">
+        <div class="item">
+            <label for="model">Model:</label>
+            <input type="text" class="model" placeholder="Enter model (e.g., J60-350)" required>
 
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" class="quantity" name="quantity" min="1" value="1" required>
+            <label for="quantity">Quantity:</label>
+            <input type="number" class="quantity" value="1" min="1" required>
 
-                    <label for="description">Description:</label>
-                    <textarea class="description" name="description" readonly></textarea>
+            <label for="description">Description:</label>
+            <textarea class="description" readonly></textarea>
 
-                    <label for="listPrice">List Price ($):</label>
-                    <input type="number" class="listPrice" name="listPrice" step="0.01" readonly>
+            <label for="listPrice">List Price:</label>
+            <input type="text" class="listPrice" readonly>
 
-                    <label for="discount">Discount (%):</label>
-                    <input type="number" class="discount" name="discount" min="0" max="100" step="0.1" value="10" required>
+            <label for="discount">Discount (%):</label>
+            <input type="number" class="discount" value="10" min="0" max="100" step="0.01">
 
-                    <label for="quotedPrice">Quoted Price ($):</label>
-                    <input type="number" class="quotedPrice" name="quotedPrice" step="0.01" readonly>
+            <label for="quotedPrice">Quoted Price:</label>
+            <input type="text" class="quotedPrice" readonly>
 
-                    <button type="button" class="removeItem" style="display:none;">Remove Item</button>
-                </div>
-            </div>
-            <button type="button" id="addItem">Add Another Item</button>
-
-            <button type="button" id="generateQuote">Generate Quote</button>
-        </form>
-
-        <div id="quoteOutput" class="quote-output">
-            <button id="exportPDF" style="display:none;">Export to PDF</button>
+            <button class="removeItem">Remove</button>
         </div>
     </div>
+
+    <button id="addItem">Add Another Item</button><br><br>
+    <button id="generateQuote">Generate Quote</button>
+
+    <div id="quoteOutput"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
