@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supportek Quoting Tool</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Include jsPDF library for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -24,6 +26,9 @@
                     <select class="partNumber" name="partNumber" required>
                         <option value="">Select a Part Number</option>
                     </select>
+
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" class="quantity" name="quantity" min="1" value="1" required>
 
                     <label for="description">Description:</label>
                     <textarea class="description" name="description" readonly></textarea>
@@ -45,7 +50,9 @@
             <button type="button" id="generateQuote">Generate Quote</button>
         </form>
 
-        <div id="quoteOutput" class="quote-output"></div>
+        <div id="quoteOutput" class="quote-output">
+            <button id="exportPDF" style="display:none;">Export to PDF</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
