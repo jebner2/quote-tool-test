@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPC Quoting Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <img src="supportek-logo.png" alt="Supportek Logo" class="logo">
+        <h1>XPC Quoting Tool</h1>
+        <form id="quoteForm">
+            <label for="customerName">Customer Name:</label>
+            <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
+
+            <h2>Items</h2>
+            <div id="itemsContainer">
+                <div class="item">
+                    <label for="partNumber">Part Number:</label>
+                    <select class="partNumber" name="partNumber" required>
+                        <option value="">Select a Part Number</option>
+                    </select>
+
+                    <label for="description">Description:</label>
+                    <textarea class="description" name="description" readonly></textarea>
+
+                    <label for="listPrice">List Price ($):</label>
+                    <input type="number" class="listPrice" name="listPrice" step="0.01" readonly>
+
+                    <label for="discount">Discount (%):</label>
+                    <input type="number" class="discount" name="discount" min="0" max="100" step="0.1" value="10" required>
+
+                    <label for="quotedPrice">Quoted Price ($):</label>
+                    <input type="number" class="quotedPrice" name="quotedPrice" step="0.01" readonly>
+
+                    <button type="button" class="removeItem" style="display:none;">Remove Item</button>
+                </div>
+            </div>
+            <button type="button" id="addItem">Add Another Item</button>
+
+            <button type="button" id="generateQuote">Generate Quote</button>
+        </form>
+
+        <div id="quoteOutput" class="quote-output"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
