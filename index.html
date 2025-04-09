@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XPC Quoting Tool</title>
+    <title>Supportek Quoting Tool</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <img src="supportek-logo.png" alt="Supportek Logo" class="logo">
-        <h1>XPC Quoting Tool</h1>
+        <h1>Supportek Quoting Tool</h1>
         <form id="quoteForm">
             <label for="customerName">Customer Name:</label>
             <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
+
+            <label for="customerPhone">Customer Phone Number:</label>
+            <input type="tel" id="customerPhone" name="customerPhone" placeholder="Enter phone number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" title="Phone number should be in the format 123-456-7890">
 
             <h2>Items</h2>
             <div id="itemsContainer">
