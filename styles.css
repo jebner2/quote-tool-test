@@ -1,166 +1,138 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 1200px; /* Increased max-width to accommodate wider descriptions */
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.logo {
-    display: block;
-    margin: 0 auto 20px auto;
-    max-width: 300px;
-    height: auto;
-}
-
-h1, h2 {
-    text-align: center;
-    color: #333;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-input, select, textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
+/* styles.css */
+* {
     box-sizing: border-box;
 }
 
-textarea {
-    height: 150px;
-    resize: vertical;
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
 }
 
-input[readonly] {
-    background-color: #f0f0f0;
+.customer-info-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-button {
-    padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
+.customer-info-section label {
+    flex: 0 0 120px;
+    font-weight: bold;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-#addItem {
-    background-color: #28a745;
-}
-
-#addItem:hover {
-    background-color: #218838;
-}
-
-.removeItem {
-    background-color: #dc3545;
-}
-
-.removeItem:hover {
-    background-color: #c82333;
-}
-
-#exportPDF {
-    background-color: #ff5733;
-    margin-bottom: 15px;
-}
-
-#exportPDF:hover {
-    background-color: #e04e2d;
+.customer-info-section input {
+    flex: 1;
+    min-width: 200px;
+    padding: 5px;
 }
 
 .item {
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     padding: 10px;
-    border-radius: 4px;
     margin-bottom: 10px;
-    display: grid;
-    grid-template-columns: 1fr 0.5fr 2fr 1fr 1fr 1fr auto; /* Adjusted for quantity */
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    align-items: center;
 }
 
-.quote-output {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+.item label {
+    flex: 0 0 100px;
+    font-weight: bold;
+}
+
+.item input[type="checkbox"] {
+    flex: 0 0 auto;
+    margin-right: 5px;
+}
+
+.item select, .item input:not([type="checkbox"]), .item textarea {
+    flex: 1;
+    min-width: 150px;
+    padding: 5px;
+}
+
+.item textarea {
+    resize: vertical;
+    height: 60px;
+    background-color: #f0f0f0; /* Light gray when readonly */
+}
+
+.item textarea.editable {
+    background-color: #ffffff; /* White when editable */
+    border: 2px solid #4CAF50; /* Green border to indicate editable */
+}
+
+.removeItem {
     display: none;
-    position: relative;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
-.quote-output .quote-header {
+#quoteOutput {
+    display: none;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
+
+#quoteOutput table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#quoteOutput th, #quoteOutput td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+#quoteOutput th {
+    background-color: #f2f2f2;
+}
+
+#quoteOutput .description-column {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+.logo {
+    max-width: 150px;
+    margin-bottom: 10px;
+}
+
+.quote-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.quote-output .date {
-    font-size: 14px;
-    color: #555;
-}
-
-.quote-output .customer-info {
+.customer-info {
     margin-bottom: 20px;
-    font-size: 14px;
-    color: #333;
 }
 
-.quote-output .contact-info {
+.contact-info {
     margin-top: 20px;
-    font-size: 14px;
-    color: #555;
-    text-align: center;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
+    font-size: 0.9em;
 }
 
-.quote-output table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: auto; /* Allows columns to adjust based on content */
+#exportPDF {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
-.quote-output th, .quote-output td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    vertical-align: top; /* Ensures text aligns at the top of cells */
+#exportPDF:hover {
+    background-color: #45a049;
 }
 
-.quote-output th {
-    background-color: #f2f2f2;
-}
-
-/* Ensure description column can grow */
-.quote-output .description-column {
-    min-width: 200px; /* Minimum width to start */
-    white-space: normal; /* Allow text to wrap */
+.model.invalid {
+    border: 2px solid red;
 }
